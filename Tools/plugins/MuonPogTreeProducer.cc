@@ -732,29 +732,29 @@ Int_t MuonPogTreeProducer::fillMuons(const edm::Handle<edm::View<reco::Muon> > &
       ntupleMu.isTrkMuOST               = muon::isGoodMuon(mu, muon::TMOneStationTight) ? 1 : 0; 
       ntupleMu.isTrkHP                  = hasInnerTrack && mu.innerTrack()->quality(reco::TrackBase::highPurity) ? 1 : 0; 
 
-      if ( mu.isMatchesValid() )
-	{
-	  for ( reco::MuonChamberMatch match : mu.matches() )
-	    {
-	      muon_pog::ChambMatch ntupleMatch;
+      // if ( mu.isMatchesValid() )
+      // 	{
+      // 	  for ( reco::MuonChamberMatch match : mu.matches() )
+      // 	    {
+      // 	      muon_pog::ChambMatch ntupleMatch;
 	      
-	      if (getMuonChamberId(match.id,ntupleMatch.type,ntupleMatch.r,
-				   ntupleMatch.phi,ntupleMatch.eta))
-		{
+      // 	      if (getMuonChamberId(match.id,ntupleMatch.type,ntupleMatch.r,
+      // 				   ntupleMatch.phi,ntupleMatch.eta))
+      // 		{
 	      
-		  ntupleMatch.errxTk = match.xErr;
-		  ntupleMatch.erryTk = match.yErr;
+      // 		  ntupleMatch.errxTk = match.xErr;
+      // 		  ntupleMatch.erryTk = match.yErr;
 	      
-		  ntupleMatch.dx = mu.dX(match.station(),match.detector());
-		  ntupleMatch.dy = mu.dY(match.station(),match.detector());
+      // 		  ntupleMatch.dx = mu.dX(match.station(),match.detector());
+      // 		  ntupleMatch.dy = mu.dY(match.station(),match.detector());
 		  
-		  ntupleMatch.errxSeg = mu.segmentXErr(match.station(),match.detector());
-		  ntupleMatch.errySeg = mu.segmentYErr(match.station(),match.detector());
+      // 		  ntupleMatch.errxSeg = mu.segmentXErr(match.station(),match.detector());
+      // 		  ntupleMatch.errySeg = mu.segmentYErr(match.station(),match.detector());
 		  
-		  ntupleMu.matches.push_back(ntupleMatch);
-		}
-	    }
-	}
+      // 		  ntupleMu.matches.push_back(ntupleMatch);
+      // 		}
+      // 	    }
+      // 	}
       
       ntupleMu.dxyBest  = -999; 
       ntupleMu.dzBest   = -999; 
