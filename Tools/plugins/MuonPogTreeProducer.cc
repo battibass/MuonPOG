@@ -96,7 +96,7 @@ private:
   edm::EDGetTokenT<trigger::TriggerEvent> trigSummaryToken_;
 
   std::string trigFilterCut_;
-  std::string trigPathCut_;
+  std::vector<std::string> trigPathCuts_;
 
   edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
   edm::EDGetTokenT<std::vector<reco::Vertex> > primaryVertexToken_;
@@ -135,7 +135,7 @@ MuonPogTreeProducer::MuonPogTreeProducer( const edm::ParameterSet & cfg )
   if (tag.label() != "none") trigSummaryToken_ =consumes<trigger::TriggerEvent>(tag);
 
   trigFilterCut_ = cfg.getUntrackedParameter<std::string>("TrigFilterCut", std::string("all"));
-  trigPathCut_ = cfg.getUntrackedParameter<std::string>("TrigPathCut", std::string("all"));
+  trigPathCuts_ = cfg.getUntrackedParameter<std::vector<std::string> >("TrigPathCuts");
 
   tag = cfg.getUntrackedParameter<edm::InputTag>("MuonTag", edm::InputTag("muons"));
   if (tag.label() != "none") muonToken_ = consumes<edm::View<reco::Muon> >(tag);
@@ -468,14 +468,23 @@ void MuonPogTreeProducer::fillHlt(const edm::Handle<edm::TriggerResults> & trigg
 				  const edm::TriggerNames & triggerNames)
 {    
 
+  bool hasTrigPath = false;
+ 
   for (unsigned int iTrig=0; iTrig<triggerNames.size(); ++iTrig) 
     {
       
       if (triggerResults->accept(iTrig)) 
 	{
 	  std::string pathName = triggerNames.triggerName(iTrig);
-	  if (trigPathCut_ == "all" || pathName.find(trigPathCut_) != std::string::npos)
-	    event_.hlt.triggers.push_back(pathName);
+	  for ( auto trigPathCut : trigPathCuts_)
+	    {
+	      if (trigPathCut == "all" || pathName.find(trigPathCut) != std::string::npos)
+		{
+		  event_.hlt.triggers.push_back(pathName);
+		  hasTrigPath = true;
+		}
+	    }
+
 	}
     }
       
@@ -486,7 +495,7 @@ void MuonPogTreeProducer::fillHlt(const edm::Handle<edm::TriggerResults> & trigg
 	
       std::string filterTag = triggerEvent->filterTag(iFilter).encode();
       
-      if (trigFilterCut_ == "all" || filterTag.find(trigFilterCut_) != std::string::npos)
+      if (hasTrigPath)
 	{
 
 	  trigger::Keys objectKeys = triggerEvent->filterKeys(iFilter);
@@ -604,33 +613,70 @@ Int_t MuonPogTreeProducer::fillMuons(const edm::Handle<edm::View<reco::Muon> > &
 
       bool hasInnerTrack = !mu.innerTrack().isNull();
       bool hasTunePTrack = !mu.tunePMuonBestTrack().isNull();
+
+      bool hasPickyTrack = !mu.pickyTrack().isNull();
+      bool hasDytTrack   = !mu.dytTrack().isNull();
+
       
       muon_pog::Muon ntupleMu;
       
-      ntupleMu.pt     = mu.pt();
-      ntupleMu.eta    = mu.eta();
-      ntupleMu.phi    = mu.phi();
+      ntupleMu.pt      = mu.pt();
+      ntupleMu.eta     = mu.eta();
+      ntupleMu.phi     = mu.phi();
+      ntupleMu.sigmaPt = mu.bestTrack()->ptError();
+ 
+      ntupleMu.nHitsTk = mu.bestTrack()->hitPattern().numberOfValidTrackerHits();
+      ntupleMu.nHitsMu = mu.bestTrack()->hitPattern().numberOfValidMuonHits();
       ntupleMu.charge = mu.charge();
 
-      ntupleMu.pt_global     = isGlobal ? mu.globalTrack()->pt()  : -1000.;
-      ntupleMu.eta_global    = isGlobal ? mu.globalTrack()->eta() : -1000.;
-      ntupleMu.phi_global    = isGlobal ? mu.globalTrack()->phi() : -1000.;
-      ntupleMu.charge_global = isGlobal ? mu.globalTrack()->charge() : -1000.;
+      ntupleMu.pt_global      = isGlobal ? mu.globalTrack()->pt()  : -1000.;
+      ntupleMu.eta_global     = isGlobal ? mu.globalTrack()->eta() : -1000.;
+      ntupleMu.phi_global     = isGlobal ? mu.globalTrack()->phi() : -1000.;
+      ntupleMu.sigmaPt_global = isGlobal ? mu.globalTrack()->ptError() : -1000.;
 
-      ntupleMu.pt_tuneP     = hasTunePTrack ? mu.tunePMuonBestTrack()->pt()  : -1000.;
-      ntupleMu.eta_tuneP    = hasTunePTrack ? mu.tunePMuonBestTrack()->eta() : -1000.;
-      ntupleMu.phi_tuneP    = hasTunePTrack ? mu.tunePMuonBestTrack()->phi() : -1000.;
-      ntupleMu.charge_tuneP = hasTunePTrack ? mu.tunePMuonBestTrack()->charge() : -1000.;
+      ntupleMu.nHitsTk_global = isGlobal ? mu.globalTrack()->hitPattern().numberOfValidTrackerHits() : -1000;
+      ntupleMu.nHitsMu_global = isGlobal ? mu.globalTrack()->hitPattern().numberOfValidMuonHits() : -1000;
+      ntupleMu.charge_global  = isGlobal ? mu.globalTrack()->charge() : -1000.;
 
-      ntupleMu.pt_tracker     = hasInnerTrack ? mu.innerTrack()->pt()  : -1000.;
-      ntupleMu.eta_tracker    = hasInnerTrack ? mu.innerTrack()->eta() : -1000.;
-      ntupleMu.phi_tracker    = hasInnerTrack ? mu.innerTrack()->phi() : -1000.;
+      ntupleMu.pt_tuneP      = hasTunePTrack ? mu.tunePMuonBestTrack()->pt()  : -1000.;
+      ntupleMu.eta_tuneP     = hasTunePTrack ? mu.tunePMuonBestTrack()->eta() : -1000.;
+      ntupleMu.phi_tuneP     = hasTunePTrack ? mu.tunePMuonBestTrack()->phi() : -1000.;
+      ntupleMu.sigmaPt_tuneP = hasTunePTrack ? mu.tunePMuonBestTrack()->ptError() : -1000.;
+
+      ntupleMu.nHitsTk_tuneP = hasTunePTrack ? mu.tunePMuonBestTrack()->hitPattern().numberOfValidTrackerHits() : -1000;
+      ntupleMu.nHitsMu_tuneP = hasTunePTrack ? mu.tunePMuonBestTrack()->hitPattern().numberOfValidMuonHits() : -1000;
+      ntupleMu.charge_tuneP  = hasTunePTrack ? mu.tunePMuonBestTrack()->charge() : -1000.;
+
+      ntupleMu.pt_picky      = hasPickyTrack ? mu.pickyTrack()->pt()  : -1000.;
+      ntupleMu.eta_picky     = hasPickyTrack ? mu.pickyTrack()->eta() : -1000.;
+      ntupleMu.phi_picky     = hasPickyTrack ? mu.pickyTrack()->phi() : -1000.;
+      ntupleMu.sigmaPt_picky = hasPickyTrack ? mu.pickyTrack()->ptError() : -1000.;
+
+      ntupleMu.nHitsTk_picky = hasPickyTrack ? mu.pickyTrack()->hitPattern().numberOfValidTrackerHits() : -1000;
+      ntupleMu.nHitsMu_picky = hasPickyTrack ? mu.pickyTrack()->hitPattern().numberOfValidMuonHits() : -1000;
+      ntupleMu.charge_picky  = hasPickyTrack ? mu.pickyTrack()->charge() : -1000.;
+
+      ntupleMu.pt_dyt      = hasDytTrack ? mu.dytTrack()->pt()  : -1000.;
+      ntupleMu.eta_dyt     = hasDytTrack ? mu.dytTrack()->eta() : -1000.;
+      ntupleMu.phi_dyt     = hasDytTrack ? mu.dytTrack()->phi() : -1000.;
+      ntupleMu.sigmaPt_dyt = hasDytTrack ? mu.dytTrack()->ptError() : -1000.;
+
+      ntupleMu.nHitsTk_dyt = hasDytTrack ? mu.dytTrack()->hitPattern().numberOfValidTrackerHits() : -1000;
+      ntupleMu.nHitsMu_dyt = hasDytTrack ? mu.dytTrack()->hitPattern().numberOfValidMuonHits() : -1000;
+      ntupleMu.charge_dyt  = hasDytTrack ? mu.dytTrack()->charge() : -1000.;
+
+      ntupleMu.pt_tracker      = hasInnerTrack ? mu.innerTrack()->pt()  : -1000.;
+      ntupleMu.eta_tracker     = hasInnerTrack ? mu.innerTrack()->eta() : -1000.;
+      ntupleMu.phi_tracker     = hasInnerTrack ? mu.innerTrack()->phi() : -1000.;
+      ntupleMu.sigmaPt_tracker = hasInnerTrack ? mu.innerTrack()->ptError() : -1000.;
+
       ntupleMu.charge_tracker = hasInnerTrack ? mu.innerTrack()->charge() : -1000.;
 
-      ntupleMu.pt_standalone     = isStandAlone ? mu.outerTrack()->pt()  : -1000.;
-      ntupleMu.eta_standalone    = isStandAlone ? mu.outerTrack()->eta() : -1000.;
-      ntupleMu.phi_standalone    = isStandAlone ? mu.outerTrack()->phi() : -1000.;
-      ntupleMu.charge_standalone = isStandAlone ? mu.outerTrack()->charge() : -1000.;
+      ntupleMu.pt_standalone      = isStandAlone ? mu.outerTrack()->pt()  : -1000.;
+      ntupleMu.eta_standalone     = isStandAlone ? mu.outerTrack()->eta() : -1000.;
+      ntupleMu.phi_standalone     = isStandAlone ? mu.outerTrack()->phi() : -1000.;
+      ntupleMu.sigmaPt_standalone = isStandAlone ? mu.outerTrack()->ptError() : -1000.;
+      ntupleMu.charge_standalone  = isStandAlone ? mu.outerTrack()->charge() : -1000.;
 
       // Detector Based Isolation
       reco::MuonIsolation detIso03 = mu.isolationR03();
@@ -655,15 +701,24 @@ Int_t MuonPogTreeProducer::fillMuons(const edm::Handle<edm::View<reco::Muon> > &
       ntupleMu.isStandAlone = isStandAlone ? 1 : 0;
       ntupleMu.isPF         = isPF ? 1 : 0;
 
+      ntupleMu.trkAlgo     = hasInnerTrack ? mu.innerTrack()->algo() : -999;
+      ntupleMu.trkOrigAlgo = hasInnerTrack ? mu.innerTrack()->originalAlgo() : -999;
+
       ntupleMu.nHitsGlobal     = isGlobal     ? mu.globalTrack()->numberOfValidHits() : -999;	
       ntupleMu.nHitsTracker    = isTracker    ? mu.innerTrack()->numberOfValidHits()  : -999;	
       ntupleMu.nHitsStandAlone = isStandAlone ? mu.outerTrack()->numberOfValidHits()  : -999;
+      ntupleMu.nStationsWithHitsStandAlone = isStandAlone ? mu.outerTrack()->hitPattern().muonStationsWithValidHits()  : -999;
+      ntupleMu.nRpcStationsWithHitsStandAlone = isStandAlone ? mu.outerTrack()->hitPattern().rpcStationsWithValidHits()  : -999;
+      ntupleMu.nCscStationsWithHitsStandAlone = isStandAlone ? mu.outerTrack()->hitPattern().cscStationsWithValidHits()  : -999;
+      ntupleMu.nDtStationsWithHitsStandAlone  = isStandAlone ? mu.outerTrack()->hitPattern().dtStationsWithValidHits()  : -999;
 
       ntupleMu.glbNormChi2              = isGlobal      ? mu.globalTrack()->normalizedChi2() : -999; 
+      ntupleMu.staNormChi2              = isStandAlone  ? mu.outerTrack()->normalizedChi2()  : -999; 
       ntupleMu.trkNormChi2	        = hasInnerTrack ? mu.innerTrack()->normalizedChi2()  : -999; 
       ntupleMu.trkMuonMatchedStations   = isTracker     ? mu.numberOfMatchedStations()       : -999; 
       ntupleMu.glbMuonValidHits	        = isGlobal      ? mu.globalTrack()->hitPattern().numberOfValidMuonHits()       : -999; 
       ntupleMu.trkPixelValidHits	= hasInnerTrack ? mu.innerTrack()->hitPattern().numberOfValidPixelHits()       : -999; 
+      ntupleMu.trkPixelMissingHits	= hasInnerTrack ? mu.innerTrack()->hitPattern().numberOfLostPixelHits(reco::HitPattern::HitCategory::TRACK_HITS)       : -999; 
       ntupleMu.trkPixelLayersWithMeas   = hasInnerTrack ? mu.innerTrack()->hitPattern().pixelLayersWithMeasurement()   : -999; 
       ntupleMu.trkTrackerLayersWithMeas = hasInnerTrack ? mu.innerTrack()->hitPattern().trackerLayersWithMeasurement() : -999; 
 

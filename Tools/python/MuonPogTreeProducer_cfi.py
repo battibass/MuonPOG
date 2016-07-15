@@ -5,7 +5,7 @@ MuonPogTree = cms.EDAnalyzer("MuonPogTreeProducer",
                              TrigSummaryTag = cms.untracked.InputTag("hltTriggerSummaryAOD::HLT"),
 
                              TrigFilterCut = cms.untracked.string("all"),
-                             TrigPathCut   = cms.untracked.string("all"),
+                             TrigPathCuts  = cms.untracked.vstring("all"),
 
                              MuonTag          = cms.untracked.InputTag("muons"),
                              PrimaryVertexTag = cms.untracked.InputTag("offlinePrimaryVertices"),

@@ -7,31 +7,31 @@ import sys
 options = VarParsing.VarParsing()
 
 options.register('globalTag',
-                 '80X_mcRun2_asymptotic_2016_v3', #default value
+                 '80X_dataRun2_v8', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Global Tag")
 
 options.register('nEvents',
-                 1000, #default value
+                 10000, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Maximum number of processed events")
 
 options.register('eosInputFolder',
-                 '/store/relval/CMSSW_8_0_3/RelValZMM_13/GEN-SIM-RECO/PU25ns_80X_mcRun2_asymptotic_2016_v3_gs71xNewGtHcalCust-v1/00000', #default value
+                 '/store/data/Run2016B/SingleMuon/AOD/PromptReco-v2/000/273/402/00000', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "EOS folder with input files")
 
 options.register('ntupleName',
-                 './muonPOGNtuple_8_0_3_RelValZMM_13.root', #default value
+                 './muonPOGNtuple_extended.root', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Folder and name ame for output ntuple")
 
 options.register('runOnMC',
-                 True, #default value
+                 False, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Run on DATA or MC")
@@ -57,15 +57,11 @@ options.register('minNMu',
 options.parseArguments()
 
 if options.hltPathFilter == "all" :
-    pathCut   = "all"
+    pathCut   = cms.untracked.vstring("all")
     filterCut = "all"
-elif options.hltPathFilter == "IsoMu20" :
-    pathCut   = "HLT_IsoMu20_v"
-    if options.runOnMC :
-        filterCut = "hltL3crIsoL1sMu16L1f0L2f10QL3f20QL3trkIsoFiltered0p09"
-    else :
-        filterCut = "hltL3crIsoL1sMu18L1f0L2f10QL3f20QL3trkIsoFiltered0p09"
-        
+elif options.hltPathFilter == "Mu" :
+    pathCut   = cms.untracked.vstring("HLT_IsoMu20_v", "HLT_IsoMu22_v", "HLT_Mu50_v","HLT_IsoTkMu20_v", "HLT_IsoTkMu22_v", "HLT_TkMu50_v")
+    filterCut = "all"    
 else :
     print "[" + sys.argv[0] + "]:", "hltPathFilter=", options.hltPathFilter, "is not a valid parameter!"
     sys.exit(100)
@@ -91,7 +87,7 @@ process.source = cms.Source("PoolSource",
 )
 
 files = subprocess.check_output([ "/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select", "ls", options.eosInputFolder ])
-process.source.fileNames = [ options.eosInputFolder+"/"+f for f in files.split() ]  
+process.source.fileNames = [ options.eosInputFolder+"/"+f for f in files.split() ] 
 
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")

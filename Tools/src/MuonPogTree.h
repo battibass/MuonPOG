@@ -105,30 +105,61 @@ namespace muon_pog {
     Float_t pt;  // pt [GeV]   
     Float_t eta; // eta
     Float_t phi; // phi
+    Float_t sigmaPt;  // sigmaPt
 
-    Int_t   charge;    // charge
+    Int_t nHitsTk;  // nHitsTk
+    Int_t nHitsMu;  // nHitsMu
+    Int_t charge;    // charge
 
     Float_t pt_tuneP;  // pt [GeV]
     Float_t eta_tuneP; // eta
     Float_t phi_tuneP; // phi
+    Float_t sigmaPt_tuneP;  // sigmaPt
 
-    Int_t   charge_tuneP;    // charge
+    Int_t nHitsTk_tuneP;  // nHitsTk
+    Int_t nHitsMu_tuneP;  // nHitsMu
+    Int_t charge_tuneP;    // charge
+
+    Float_t pt_picky;  // pt [GeV]
+    Float_t eta_picky; // eta
+    Float_t phi_picky; // phi
+    Float_t sigmaPt_picky;  // sigmaPt
+
+    Int_t nHitsTk_picky;  // nHitsTk
+    Int_t nHitsMu_picky;  // nHitsMu
+    Int_t charge_picky;    // charge
+
+    Float_t pt_dyt;  // pt [GeV]
+    Float_t eta_dyt; // eta
+    Float_t phi_dyt; // phi
+    Float_t sigmaPt_dyt;  // sigmaPt
+
+    Int_t nHitsTk_dyt;  // nHitsTk
+    Int_t nHitsMu_dyt;  // nHitsMu
+    Int_t charge_dyt;    // charge
 
     Float_t pt_global;  // pt [GeV]
     Float_t eta_global; // eta
     Float_t phi_global; // phi
+    Float_t sigmaPt_global;  // sigmaPt
 
-    Int_t   charge_global;    // charge
+    Int_t nHitsTk_global;  // nHitsTk
+    Int_t nHitsMu_global;  // nHitsMu
+    Int_t charge_global;    // charge
 
     Float_t pt_tracker;  // pt [GeV]
     Float_t eta_tracker; // eta
     Float_t phi_tracker; // phi
+    Float_t sigmaPt_tracker;  // sigmaPt
 
-    Int_t   charge_tracker;    // charge
+    Int_t nHitsTk_tracker;  // nHitsTk
+    Int_t nHitsMu_racker;  // nHitsMu
+    Int_t charge_tracker;    // charge
 
     Float_t pt_standalone;  // pt [GeV]
     Float_t eta_standalone; // eta
     Float_t phi_standalone; // phi
+    Float_t sigmaPt_standalone;  // sigmaPt
 
     Int_t   charge_standalone;    // charge
 
@@ -170,14 +201,23 @@ namespace muon_pog {
     Int_t   nHitsGlobal;
     Int_t   nHitsTracker;
     Int_t   nHitsStandAlone; 
+    Int_t   nStationsWithHitsStandAlone; 
+    Int_t   nRpcStationsWithHitsStandAlone; 
+    Int_t   nCscStationsWithHitsStandAlone; 
+    Int_t   nDtStationsWithHitsStandAlone; 
+
+    Int_t   trkAlgo;
+    Int_t   trkOrigAlgo;
 
     // Variables for ID 
     //  - General (Tight, HighPt, Soft) 
+    Float_t staNormChi2; 
     Float_t glbNormChi2; 
     Float_t trkNormChi2; 
     Int_t   trkMuonMatchedStations; 
     Int_t   glbMuonValidHits; 
     Int_t   trkPixelValidHits; 
+    Int_t   trkPixelMissingHits; 
     Int_t   trkPixelLayersWithMeas; 
     Int_t   trkTrackerLayersWithMeas; 
 

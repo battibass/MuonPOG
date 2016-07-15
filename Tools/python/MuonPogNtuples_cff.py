@@ -33,11 +33,9 @@ def appendMuonPogNtuple(process, runOnMC, processTag="HLT", ntupleFileName="Muon
 
 def customiseHlt(process, pathCut = "all", filterCut = "all") :
     if hasattr(process,"MuonPogTree") :
-        print "[MuonPogNtuples]: skimming HLT format using:\n" \
-            + "\tpaths : " + pathCut + "\n" \
-            + "\tfilters : " + filterCut 
+        print "[MuonPogNtuples]: skimming HLT format\n"
             
-        process.MuonPogTree.TrigPathCut = pathCut
+        process.MuonPogTree.TrigPathCuts = pathCut
         process.MuonPogTree.TrigFilterCut = filterCut
     else : 
         print "[MuonPogNtuples]: muonPogTree not found, check your cfg!"
