@@ -69,12 +69,22 @@ namespace muon_pog {
     Float_t dx;  // 999999 if not matched with a segment (I think) 
     Float_t dy;  // 999999 if not matched with a segment (I think)
     
+    Float_t dDxDz;  // 999999 if not matched with a segment (I think) 
+    Float_t dDyDz;  // 999999 if not matched with a segment (I think)
+
     Float_t errxTk; 
     Float_t erryTk; 
-    
+
+    Float_t errDxDzTk; 
+    Float_t errDyDzTk;     
+
     Float_t errxSeg;  // 999999 if not matched with a segment (I think)
-    Float_t errySeg;  // 999999 if not matched with a segment (I think) 
-    
+    Float_t errySeg;  // 999999 if not matched with a segment (I think)
+
+
+    Float_t errDxDzSeg;  // 999999 if not matched with a segment (I think)
+    Float_t errDyDzSeg;  // 999999 if not matched with a segment (I think) 
+
     ChambMatch(){};
     virtual ~ChambMatch(){};
     

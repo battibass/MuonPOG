@@ -19,7 +19,7 @@ options.register('nEvents',
                  "Maximum number of processed events")
 
 options.register('eosInputFolder',
-                 '/store/data/Run2015D/SingleMuon/AOD/PromptReco-v3/000/258/158/00000', #default value
+                 '/store/data/Run2015D/SingleMuon/RECO/PromptReco-v4/000/260/593/00000', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "EOS folder with input files")
