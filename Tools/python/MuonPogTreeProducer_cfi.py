@@ -8,7 +8,7 @@ MuonPogTree = cms.EDAnalyzer("MuonPogTreeProducer",
                              TrigPathCut   = cms.untracked.string("all"),
 
                              MuonTag          = cms.untracked.InputTag("muons"),
-                             PrimaryVertexTag = cms.untracked.InputTag("offlinePrimaryVertices"),
+                             PrimaryVertexTag = cms.untracked.InputTag("goodOfflinePrimaryVertices"),
                              BeamSpotTag      = cms.untracked.InputTag("offlineBeamSpot"),
                              
                              PFMetTag         = cms.untracked.InputTag("pfMet"), 

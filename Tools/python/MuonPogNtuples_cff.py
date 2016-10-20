@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 def appendMuonPogNtuple(process, runOnMC, processTag="HLT", ntupleFileName="MuonPogTree.root") :
 
     process.load("MuonPOG.Tools.MuonPogTreeProducer_cfi")
+    process.load("CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi")
 
     if processTag != "HLT" :
         print "[MuonPogNtuples]: Customising process tag for TriggerResults / Summary to :", processTag
@@ -23,6 +24,13 @@ def appendMuonPogNtuple(process, runOnMC, processTag="HLT", ntupleFileName="Muon
         fileName = cms.string(ntupleFileName)
     )
 
+
+    if hasattr(process,"reconstruction_step") :
+        print "[MuonPogNtuples]: Appending goodOfflinePrimaryVertices to RECO step"
+        process.AOutput.replace(process.reconstruction_step, process.reconstruction_step + process.goodOfflinePrimaryVertices)
+    else :
+        print "[MuonPogNtuples]: Creating FastFilter path to host goodOfflinePrimaryVertices"
+        process.FastFilters = cms.Path(process.goodOfflinePrimaryVertices)
     
     if hasattr(process,"AOutput") :
         print "[MuonPogNtuples]: EndPath AOutput found, appending ntuples"
